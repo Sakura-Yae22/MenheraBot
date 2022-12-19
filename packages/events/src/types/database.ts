@@ -43,7 +43,6 @@ export interface DatabaseUserSchema {
   trisal: string[];
   inventory: HuntMagicItem[];
   inUseItems: HuntMagicItem[];
-  itemsLimit: number;
   lastCommandAt: number;
   isBot: boolean;
 }
@@ -59,14 +58,20 @@ export interface DatabaseCreditsSchema {
 
 export interface DatabaseUserThemesSchema {
   readonly id: string;
-  cardsThemes: Array<UserBuyableTheme>;
-  tableThemes: Array<UserBuyableTheme>;
-  profileThemes: Array<UserBuyableTheme>;
-  cardsBackgroundThemes: Array<UserBuyableTheme>;
+  cardsThemes: UserBuyableTheme[];
+  tableThemes: UserBuyableTheme[];
+  profileThemes: UserBuyableTheme[];
+  cardsBackgroundThemes: UserBuyableTheme[];
+  ebBackgroundThemes: UserBuyableTheme[];
+  ebTextBoxThemes: UserBuyableTheme[];
+  ebMenheraThemes: UserBuyableTheme[];
   selectedCardTheme: number;
   selectedTableTheme: number;
   selectedProfileTheme: number;
   selectedCardBackgroundTheme: number;
+  selectedEbBackgroundTheme: number;
+  selectedEbTextBoxTheme: number;
+  selectedEbMenheraTheme: number;
   notifyPurchase: boolean;
 }
 
@@ -74,10 +79,11 @@ export interface DatabaseGuildSchema {
   readonly id: string;
   lang: string;
 }
-export interface DatabaseCommandMaintenanceSchema {
+export interface DatabaseCommandSchema {
   readonly _id: string;
   maintenance: boolean;
   maintenanceReason: string | null;
+  discordId: string;
 }
 
 export type UserIdType = string | bigint;

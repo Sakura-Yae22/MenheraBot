@@ -15,7 +15,7 @@ const handleRequest = async (ctx: Context): Promise<void> => {
 
   bot.events.interactionCreate(
     bot,
-    bot.transformers.interaction(bot, ctx.body as DiscordInteraction),
+    bot.transformers.interaction(bot, ctx.request.body as DiscordInteraction),
   );
 };
 

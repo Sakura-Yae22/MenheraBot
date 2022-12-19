@@ -145,6 +145,26 @@
     "24": {
       "name": "Gatito",
       "description": "Não há nada melhor do que gatinhos!"
-    }
+    },
+    "25": {
+      "name": "Quarto da Menhera",
+      "description": "Um quartinho rosa para uma guria fofa"
+    },
+    "26": {
+      "name": "Dia dos Namorados",
+      "description": "O amor está no ar!"
+     },
+    "27": {
+      "name": "Simplesmente Menhera",
+      "description": "É, sou eu"
+      } ,
+    "28": {
+      "name": "Windows XP",
+      "description": "A famosa telinha de aviso do Windows XP"
+     },
+    "29": {
+      "name": "Windows XP",
+      "description": "Nenhum wallpaper é mais famoso que esse."
+     }
   }
 }

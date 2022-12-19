@@ -1,17 +1,17 @@
 import { InteractionResponseTypes, InteractionTypes } from 'discordeno/types';
 import i18next from 'i18next';
 
+import { componentExecutor } from '../../structures/command/componentExecutor';
 import { autocompleteInteraction } from '../../structures/command/autocompleteInteraction';
 import guildRepository from '../../database/repositories/guildRepository';
-import usagesRepository from '../../database/repositories/usagesRepository';
 import { postCommandExecution } from '../../utils/apiRequests/commands';
 import { UsedCommandData } from '../../types/commands';
 import { getEnviroments } from '../../utils/getEnviroments';
 import { DatabaseUserSchema } from '../../types/database';
 import { MessageFlags } from '../../utils/discord/messageUtils';
 import blacklistRepository from '../../database/repositories/blacklistRepository';
-import InteractionContext from '../../structures/command/InteractionContext';
-import { bot, interactionEmitter } from '../../index';
+import ChatInputInteractionContext from '../../structures/command/ChatInputInteractionContext';
+import { bot } from '../../index';
 import userRepository from '../../database/repositories/userRepository';
 import commandRepository from '../../database/repositories/commandRepository';
 import { createEmbed } from '../../utils/discord/embedUtils';
@@ -30,7 +30,7 @@ const setInteractionCreateEvent = (): void => {
       interaction.type === InteractionTypes.MessageComponent ||
       interaction.type === InteractionTypes.ModalSubmit
     ) {
-      interactionEmitter.emit('interaction', interaction);
+      componentExecutor(interaction);
       return;
     }
 
@@ -49,14 +49,14 @@ const setInteractionCreateEvent = (): void => {
       });
     };
 
-    const isUserBanned = await blacklistRepository.isUserBanned(interaction.user.id);
-
-    const T = i18next.getFixedT(interaction.user.locale ?? 'pt-BR');
-
     if (bot.shuttingDown)
       return errorReply(
         'A Menhera está em processo de desligamento! Comandos estão desativados!\n\nMenhera is in the process of shutting down! Commands are disabled!',
       );
+
+    const isUserBanned = await blacklistRepository.isUserBanned(interaction.user.id);
+
+    const T = i18next.getFixedT(interaction.user.locale ?? 'pt-BR');
 
     if (isUserBanned) {
       const bannedInfo = await userRepository.getBannedUserInfo(interaction.user.id);
@@ -76,21 +76,14 @@ const setInteractionCreateEvent = (): void => {
     if (command.devsOnly && interaction.user.id !== bot.ownerId)
       return errorReply(T('permissions:ONLY_DEVS'));
 
-    const commandMaintenanceInfo = await commandRepository.getMaintenanceInfo(commandName);
+    const commandInfo = await commandRepository.getCommandInfo(commandName);
 
-    if (commandMaintenanceInfo?.maintenance && interaction.user.id !== bot.ownerId)
+    if (commandInfo?.maintenance && interaction.user.id !== bot.ownerId)
       return errorReply(
         T('events:maintenance', {
-          reason: commandMaintenanceInfo.maintenanceReason,
+          reason: commandInfo.maintenanceReason,
         }),
       );
-
-    if (command.category === 'economy') {
-      if (await usagesRepository.isUserInEconomyUsage(interaction.user.id))
-        return errorReply(T('permissions:IN_COMMAND_EXECUTION'));
-
-      await usagesRepository.setUserInEconomyUsages(interaction.user.id);
-    }
 
     const authorData =
       command.authorDataFields.length > 0
@@ -101,14 +94,18 @@ const setInteractionCreateEvent = (): void => {
       await guildRepository.getGuildLanguage(interaction.guildId as bigint),
     );
 
-    const ctx = new InteractionContext(interaction, authorData as DatabaseUserSchema, guildLocale);
+    const ctx = new ChatInputInteractionContext(
+      interaction,
+      authorData as DatabaseUserSchema,
+      guildLocale,
+    );
 
     bot.commandsInExecution += 1;
 
     testTimeouts.set(
       interaction.id,
       setTimeout(() => {
-        logger.debug(`Provavel leak de execução no comando ${command.name}.`);
+        logger.info(`Provavel leak de execução no comando ${command.name}.`);
         testTimeouts.delete(interaction.id);
       }, 120_000),
     );
@@ -129,7 +126,7 @@ const setInteractionCreateEvent = (): void => {
             err.stack.length > 3800 ? `${err.stack.slice(0, 3800)}...` : err.stack;
           const embed = createEmbed({
             color: 0xfd0000,
-            title: `${process.env.NODE_ENV === 'development' ? '[BETA]' : ''} ${T(
+            title: `${process.env.NODE_ENV === 'DEVELOPMENT' ? '[BETA]' : ''} ${T(
               'events:error_embed.title',
               {
                 cmd: command.name,
@@ -159,11 +156,7 @@ const setInteractionCreateEvent = (): void => {
     clearTimeout(testTimeouts.get(interaction.id));
     testTimeouts.delete(interaction.id);
 
-    if (command.category === 'economy')
-      await usagesRepository.removeUserFromEconomyUsages(interaction.user.id);
-
-    // TODO: Remove this after all tests
-    console.log(
+    logger.info(
       `[${new Date().toISOString().substring(11, 19)}] ${command.name} - ${interaction.user.id} `,
     );
 

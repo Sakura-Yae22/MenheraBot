@@ -1,12 +1,13 @@
 import { ApplicationCommandOptionTypes } from 'discordeno/types';
 
+import userThemesRepository from '../../database/repositories/userThemesRepository';
 import { COLORS, EMOJIS } from '../../structures/constants';
 import { createEmbed } from '../../utils/discord/embedUtils';
 import { randomFromArray, toWritableUtf } from '../../utils/miscUtils';
 import { createCommand } from '../../structures/command/createCommand';
 import { VanGoghEndpoints, vanGoghRequest } from '../../utils/vanGoghRequest';
 
-const EighballAnswers = [
+const EighballAnswers: Array<{ id: number; type: 'positive' | 'neutral' | 'negative' }> = [
   {
     id: 0,
     type: 'positive',
@@ -107,6 +108,30 @@ const EighballAnswers = [
     id: 24,
     type: 'positive',
   },
+  {
+    id: 25,
+    type: 'positive',
+  },
+  {
+    id: 26,
+    type: 'negative',
+  },
+  {
+    id: 27,
+    type: 'negative',
+  },
+  {
+    id: 28,
+    type: 'negative',
+  },
+  {
+    id: 29,
+    type: 'neutral',
+  },
+  {
+    id: 30,
+    type: 'neutral',
+  },
 ];
 
 const EightballCommand = createCommand({
@@ -133,15 +158,22 @@ const EightballCommand = createCommand({
 
     await ctx.defer();
 
+    const [backgroundTheme, textBoxTheme, menheraTheme] =
+      await userThemesRepository.getThemesForEightBall(ctx.author.id);
+
     const res = await vanGoghRequest(VanGoghEndpoints.EightBall, {
       question,
       answer: ctx.locale(`commands:8ball.answers.${randomAnswer.id}`),
       type: randomAnswer.type,
       username: toWritableUtf(ctx.author.username),
+      backgroundTheme,
+      menheraTheme,
+      textBoxTheme,
     });
 
     const embed = createEmbed({
       title: `${EMOJIS.question} | ${ctx.locale('commands:8ball.ask')}`,
+      footer: { text: ctx.locale('commands:8ball.themes') },
     });
 
     if (res.err) {

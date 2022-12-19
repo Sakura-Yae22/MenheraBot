@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 import {
-  DatabaseCommandMaintenanceSchema,
+  DatabaseCommandSchema,
   DatabaseCreditsSchema,
   DatabaseGuildSchema,
   DatabaseUserSchema,
@@ -15,6 +15,7 @@ const cmdSchema = new Schema({
   _id: { type: String },
   maintenance: { type: Boolean, default: false },
   maintenanceReason: { type: String, default: '' },
+  discordId: { type: String, default: '0' },
 });
 
 const guildSchema = new Schema({
@@ -28,10 +29,16 @@ const userThemes = new Schema({
   tableThemes: { type: Array, default: [{ id: 5, aquiredAt: 0 }] },
   profileThemes: { type: Array, default: [{ id: 3, aquiredAt: 0 }] },
   cardsBackgroundThemes: { type: Array, default: [{ id: 6, aquiredAt: 0 }] },
+  ebBackgroundThemes: { type: Array, default: [{ id: 25, aquiredAt: 0 }] },
+  ebTextBoxThemes: { type: Array, default: [{ id: 26, aquiredAt: 0 }] },
+  ebMenheraThemes: { type: Array, default: [{ id: 27, aquiredAt: 0 }] },
   selectedCardTheme: { type: Number, default: 4 },
   selectedProfileTheme: { type: Number, default: 3 },
   selectedTableTheme: { type: Number, default: 5 },
   selectedCardBackgroundTheme: { type: Number, default: 6 },
+  selectedEbBackgroundTheme: { type: Number, default: 25 },
+  selectedEbTextBoxTheme: { type: Number, default: 26 },
+  selectedEbMenheraTheme: { type: Number, default: 27 },
   notifyPurchase: { type: Boolean, default: true },
 });
 
@@ -63,7 +70,6 @@ const userSchema = new Schema({
   trisal: { type: Array, default: [] },
   inventory: { type: Array, default: [] },
   inUseItems: { type: Array, default: [] },
-  itemsLimit: { type: Number, default: 1 },
   lastCommandAt: { type: Number, default: 0 },
   isBot: { type: Boolean, default: false },
 });
@@ -106,7 +112,7 @@ const rpgSchema = new Schema({
   backpack: { type: Object, default: { id: 100, level: 1 } },
 });
 
-export const commandsModel = model<DatabaseCommandMaintenanceSchema>('command', cmdSchema);
+export const commandsModel = model<DatabaseCommandSchema>('command', cmdSchema);
 export const guildsModel = model<DatabaseGuildSchema>('guild', guildSchema);
 export const usersModel = model<DatabaseUserSchema>('usersdb', userSchema);
 export const userThemesModel = model<DatabaseUserThemesSchema>('themes', userThemes);

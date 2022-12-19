@@ -121,7 +121,7 @@
     "no-mention": {
       "embed_title": "Sarra Comigo?",
       "embed_description": "Alguém quer sarrar com {{author}}?",
-      "embed_footer": "Quer sarrar comigo? 30 segundos para aceitar a sarrada"
+      "embed_footer": "Quer sarrar comigo?"
     },
     "cannot-sarrar-self": "Tu não pode sarrar consigo mesmo!",
     "embed_title": "Sarrar",
@@ -172,7 +172,7 @@
     "self-mention": "você não pode apostar contra si mesmo",
     "no-dbuser": "este usuário não possui uma conta no Menhera's Bank!",
     "poor": "{{user}} não possui todas essas estrelinhas para apostar!",
-    "confirm": "{{author}} te desafiou para uma aposta de Cara ou Coroa valendo **{{value}}** :star:. Caso caia Cara, {{author}} vence, caso caia coroa, {{mention}} vence.\nVocê aceita? Tens **7** Segundos",
+    "confirm": "{{author}} te desafiou para uma aposta de Cara ou Coroa valendo **{{value}}** :star:. Caso caia Cara, {{author}} vence, caso caia coroa, {{mention}} vence.\nVocê aceita?",
     "cara": "CARA",
     "coroa": "COROA",
     "banned-user": "Este usuário não pode apostar pois está banido da Menhera!",
@@ -186,6 +186,7 @@
     "no-dbuser": "Este usuário não possui uma conta no Menhera's Bank!",
     "invalid-value": "O valor a ser dado deve ser maior que 0",
     "poor": "Você não possui tantos {{field}} assim!",
+    "user-poor": "{{user}} não possui tantos {{field}} assim!",
     "transfered": "Você transferiu **{{value}}** {{emoji}} para {{user}}",
     "stars": "estrelinhas",
     "demons": "demônios",
@@ -205,7 +206,7 @@
       "description": "Selectione abaixo qual item você deseja comprar",
       "hasAll": "Você já possui todos os itens mágicos disponíveis",
       "poor": "Você não possui estrelas suficientes para comprar este item!",
-      "success": "Você comprou **{{item}}** com sucesso! Só dale nas caças agora. Use /itens para usar o item"
+      "success": "Você comprou **{{item}}** com sucesso! Só dale nas caças agora. Use {{command}} para usar o item"
     },
     "dataItems": {
       "title": "🔮 | Itens Mágicos",
@@ -233,8 +234,8 @@
       "owned": "(Possui)",
       "not-registered": "Esse tema ainda não está disponível! Tente novamente mais tarde",
       "preview-mode": "Alternar Modo Preview",
-      "success": "**Compra efetuada com sucesso!** Você já pode habilitá-la no `/personalizar temas`",
-      "data": "**{{description}}**\n**Preço**: {{price}} :star:\n**Raridade**: $t(common:rarities.{{rarity}})\n**Autor**: <@{{author}}>"
+      "success": "**Compra efetuada com sucesso!** Você já pode habilitá-la no {{command}}",
+      "data": "**{{description}}**\n**Preço**: {{price}} :star:\n**Autor**: <@{{author}}>"
     },
     "buy_colors": {
       "has-color": "Eu agradeço sua empolgação para comprar em meu brechó, mas você já possui esta cor!",
@@ -277,6 +278,7 @@
   "8ball": {
     "question": "Sua Pergunta",
     "answer": "Respota",
+    "themes": "Você sabia que agora o 8ball tem temas? /loja comprar temas",
     "ask": "Pergunte à Menhera",
     "answers": {
       "0": "É certo",
@@ -303,7 +305,13 @@
       "21": "Se pa que sim ein, mas não sei",
       "22": "Pior que não na real",
       "23": "Provavelmente não",
-      "24": "Sim a full"
+      "24": "Sim a full",
+      "25": "Vou te falar que sim pra ti não ficar triste",
+      "26": "Definitivamente não",
+      "27": "Não.",
+      "28": "kk vai sonhando. Nem",
+      "29": "Não vou dizer sim, mas também não vou dizer não",
+      "30": "..."
     }
   },
   "divorciar": {
@@ -343,6 +351,7 @@
   },
   "casar": {
     "bot": "Tu não pode se casar com bots",
+    "someone-married": "Algum de vocês dois já está casado!", 
     "self-mention": "Tu não pode se casar consigo mesmo :(",
     "married": "Tu já está casado!!",
     "no-dbuser": "Mame este usuário para adicioná-lo ao meu banco de dados",
@@ -381,8 +390,9 @@
   "cor": {
     "footer": "Página {{page}}/{{maxPages}}",
     "usage": "[cor]",
+    "nonexistent": "Ué... aparentemente você não tem essa cor... que brisa vei",
     "embed_title": "Suas Cores",
-    "embed_description": "Escolha abaixo qual a cor que quer usar! Tu tem 30 segundos",
+    "embed_description": "Escolha abaixo qual a cor que quer usar!",
     "dataChoose": {
       "title": "Sua cor foi alterada com sucesso",
       "description": "Você ja pode ver seu perfil com sua nova cor!"
@@ -477,7 +487,7 @@
   },
   "sobremim": {
     "args-limit": "Seu sobremim não pode ser maior que 200 caracteres",
-    "success": "Seu 'Sobre Mim' foi alterado com sucesso! Você pode ver as mudanças com `/perfil`"
+    "success": "Seu 'Sobre Mim' foi alterado com sucesso! Você pode ver as mudanças com {{command}}"
   },
   "status": {
     "designer": {
@@ -487,7 +497,7 @@
       "dont-notify": "Não Notificar Compras",
       "success": "Suas configurações de notificação de compras foram alteradas!",
       "notify-footer": "Com notificar compras ativo, toda vez que um usuário comprar um design seu, a Menhera tentará enviar uma mensagem em sua DM mostrando isso",
-      "description": "**Tipo:** $t(common:theme_types.{{type}}) ($t(common:rarities.{{rarity}}))\n**Royalty:**: {{royalty}}%\n**Lucro:** {{profit}} :star:\n**Vendidos:** {{sold}}\nRegistrado em {{registered}}"
+      "description": "**Tipo:** $t(common:theme_types.{{type}})\n**Royalty:**: {{royalty}}%\n**Lucro:** {{profit}} :star:\n**Vendidos:** {{sold}}\nRegistrado em {{registered}}"
     },
     "coinflip": {
       "embed-title": "Estatísticas do Coinflip de {{user}}",
@@ -552,22 +562,25 @@
     "comedor-de-casadas": "UOUOUOU calma lá colega, um dos usuários que você mencionou ja está em um trisal",
     "not-in-trisal": "Nhoo meu neném, tu não tá em nenhum trisal :(",
     "user-not-in-trisal": "Este isolado não está em nenhum trisal! Que tal se tu formar um com ele heeheh",
-    "accept-message": ":heart: | Vocês aceitam formar um trisal? Os três devem clicar no botão em até 15 segundos\n{{first}}, {{second}} e {{third}}",
+    "accept-message": ":heart: | Vocês aceitam formar um trisal? {{first}} e {{second}} devem aceitar o relacionamento, clicando em ordem.",
+    "accept-button": "Eu, {{name}}, aceito!",
     "done": "Parabéns, vocês três formaram um trisal lindo! Utilize este comando novamente para ver suas fotinhas juntas",
     "error": "Os 3 não reagiram à mensagem a tempo! Tente novamente, talvez com alguem que queira, quem sabe",
     "untrisal": {
       "breakup": "Terminar",
-      "sure": "Tu tem certeza que quer terminar o trisal? Tens 15 segundos para confirmar",
+      "sure": "Tu tem certeza que quer terminar o trisal?",
       "done": "O seu trisal acabou! Não tem mais jeito. Acabou...."
     }
   },
   "blackjack": {
     "available-options": "Opções Disponíveis",
     "title": "BlackJack",
+    "shuffling": "Entregando as Cartas",
+    "lost-game-data": "Vish {{author}}, eu acabei perdendo as cartas no meio da bagunça do meu quarto... Eu te devolvi as {{value}} :star: que tu tinha apostado nesse jogo... Prometo que vou tentar não perder mais nada <3",
     "description": "Sua Mão: **{{userHand}}** -> `{{userTotal}}`\nMão da Menhera: **{{dealerCards}}** -> `{{dealerTotal}}`",
     "initial-options": "**[1] Começar** - Começe o jogo\n **[2] Desistir** - Desista deste jogo (e perca sua aposta)",
     "options": "**[1] Comprar** - Compre mais uma carta\n**[2] Parar** - Pare por aqui sua aposta",
-    "footer": "Tu tem 10 segundos",
+    "footer": "Suas estrelinhas já foram reduzidas! Para receber algo de volta, venca a partida",
     "poor": "Tu não possui todas essas estrelinhas para apostar!",
     "your-hand": "Sua Mão",
     "dealer-hand": "Mão da Menhera",
@@ -636,6 +649,9 @@
     "cards": "Estilos de Carta",
     "table": "Estilos de Mesa de Cartas",
     "card_background": "Estilos de Fundo de Carta",
+    "eb_menhera": "Menhera's do 8ball",
+    "eb_background": "Fundos do 8ball",
+    "eb_text_box": "Caixa de Perguntas do 8ball",
     "no-themes": "Você não tem nenhum tema deste tipo para alterar!",
     "selected": "Seu tema foi alterado com sucesso!",
     "choose": "Escolha abaixo o seu novo Tema!"
@@ -878,7 +894,7 @@
     "ready-users": "Usuários prontos: {{ready}} / 2",
     "same-user": "KKKK cara podre querendo batalhar contra si mesmo, marca outra pessoa ai namoral",
     "user-not-configurated": "{{user}} não possui todas as bênçãos configuradas para batalha! Use `/arena configurar` para settar suas bênçãos",
-    "description": "Bem-Vindos à arena **{{author}}** e **{{enemy}}**!\n\nVocês serão colocados de frente em uma batalha amistosa! Ninguém irá sofrer penalidades de morte ou mesmo de status. No início da batalha, ambos terão o máximo de vida e mana, e este valor não será alterado em sua ficha de aventureiro.\n\n**{{author}}** pode selecionar abaixo se a batalha será com os níveis atuais de vocês, ou se ela será justa ao **nível de batalha**. A batalha só iniciará quando ambos clicarem em PRONTO. Vocês tem 20 segundos para se decidir\n\n**Nivel de Batalha:** Todos jogadores estão nível **{{level}}** com **TODAS** habilidades da classe no nível **{{abilityLevel}}**. As bênçãos são distribuidas de acordo com a configuração do usuário\n\nNível de {{author}}: **{{authorLevel}}**\nNível de {{enemy}}: **{{enemyLevel}}**",
+    "description": "Bem-Vindos à arena **{{author}}** e **{{enemy}}**!\n\nVocês serão colocados de frente em uma batalha amistosa! Ninguém irá sofrer penalidades de morte ou mesmo de status. No início da batalha, ambos terão o máximo de vida e mana, e este valor não será alterado em sua ficha de aventureiro.\n\n**{{author}}** pode selecionar abaixo se a batalha será com os níveis atuais de vocês, ou se ela será justa ao **nível de batalha**. A batalha só iniciará quando ambos clicarem em PRONTO.\n\n**Nivel de Batalha:** Todos jogadores estão nível **{{level}}** com **TODAS** habilidades da classe no nível **{{abilityLevel}}**. As bênçãos são distribuidas de acordo com a configuração do usuário\n\nNível de {{author}}: **{{authorLevel}}**\nNível de {{enemy}}: **{{enemyLevel}}**",
     "ask-change-battle-type": "Ei {{author}}, **{{user}}** pediu para trocar o modo da batalha!",
     "closed-command": "{{author}} finalizou o comando!",
     "configurate": {

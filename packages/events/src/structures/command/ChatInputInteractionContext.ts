@@ -45,6 +45,10 @@ export default class {
     return this.interaction.user;
   }
 
+  get commandId(): bigint {
+    return this.interaction.data?.id ?? 0n;
+  }
+
   get channelId(): bigint {
     return this.interaction.channelId ?? 0n;
   }
@@ -107,7 +111,7 @@ export default class {
 
   async defer(ephemeral = false): Promise<void> {
     this.replied = true;
-    bot.helpers
+    await bot.helpers
       .sendInteractionResponse(this.interaction.id, this.interaction.token, {
         type: InteractionResponseTypes.DeferredChannelMessageWithSource,
         data: {

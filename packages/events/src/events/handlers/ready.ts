@@ -15,7 +15,9 @@ const postBotStatus = async (): Promise<void> => {
     'DBL_TOKEN',
   ]);
 
-  const info = (await getEventsClient().request({ type: 'GUILD_COUNT' })) as {
+  const info = (await getEventsClient()
+    .request({ type: 'GUILD_COUNT' })
+    .catch(() => null)) as {
     guilds: number;
     shards: number;
   } | null;
@@ -29,23 +31,27 @@ const postBotStatus = async (): Promise<void> => {
 
   if (!info) return;
 
-  await axios.post(
-    `https://top.gg/api/bots/${DISCORD_APPLICATION_ID}/stats`,
-    {
-      server_count: info.guilds,
-      shard_count: info.shards,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: DBL_TOKEN,
+  await axios
+    .post(
+      `https://top.gg/api/bots/${DISCORD_APPLICATION_ID}/stats`,
+      {
+        server_count: info.guilds,
+        shard_count: info.shards,
       },
-    },
-  );
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: DBL_TOKEN,
+        },
+      },
+    )
+    .catch(() => null);
 };
 
 const postShardStatus = async (): Promise<void> => {
-  const shardsInfo = await getEventsClient().request({ type: 'SHARDS_INFO' });
+  const shardsInfo = await getEventsClient()
+    .request({ type: 'SHARDS_INFO' })
+    .catch(() => null);
 
   if (!shardsInfo) return;
 
@@ -77,6 +83,10 @@ const postShardStatus = async (): Promise<void> => {
 
 const setReadyEvent = (): void => {
   bot.events.ready = async () => {
+    if (bot.isMaster) return;
+
+    bot.isMaster = true;
+
     logger.info(`[MASTER] I was set as the events master instance. Initializing master services`);
 
     await startGameLoop();

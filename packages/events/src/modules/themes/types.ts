@@ -28,19 +28,29 @@ export type AvailableProfilesThemes =
   | 'id03'
   | 'gatito';
 
-export type AvailableThemeTypes = 'profile' | 'cards' | 'card_background' | 'table';
+export type AvailableThemeTypes =
+  | 'profile'
+  | 'cards'
+  | 'card_background'
+  | 'table'
+  | 'eb_background'
+  | 'eb_text_box'
+  | 'eb_menhera';
+
+export type AvailableEightBallBackgroundThemeTypes = 'default' | 'xp';
+
+export type AvailableEightBallTextBoxThemeTypes = 'default' | 'xp';
+
+export type AvailableEightBallMennheraThemeTypes = 'default';
 
 export interface UserBuyableTheme {
   id: number;
   aquiredAt: number;
 }
 
-export type ThemeRarity = 'common' | 'rare' | 'epic' | 'legendary' | 'mythical' | 'divine';
-
 export interface BaseTheme {
   price: number;
-  rarity: ThemeRarity;
-  isBuyable: boolean;
+  type: AvailableThemeTypes;
 }
 
 export interface CardBackgroundTheme extends BaseTheme {
@@ -62,4 +72,26 @@ export interface TableTheme extends BaseTheme {
   theme: AvailableTableThemes;
 }
 
-export type ThemeFile = ProfileTheme | CardsTheme | TableTheme | CardBackgroundTheme;
+export interface EightBallBackgroundTheme extends BaseTheme {
+  type: 'eb_background';
+  theme: AvailableEightBallBackgroundThemeTypes;
+}
+
+export interface EightBallTextBoxTheme extends BaseTheme {
+  type: 'eb_text_box';
+  theme: AvailableEightBallTextBoxThemeTypes;
+}
+
+export interface EightBallMenheraTheme extends BaseTheme {
+  type: 'eb_menhera';
+  theme: AvailableEightBallMennheraThemeTypes;
+}
+
+export type ThemeFile =
+  | ProfileTheme
+  | CardsTheme
+  | TableTheme
+  | CardBackgroundTheme
+  | EightBallTextBoxTheme
+  | EightBallMenheraTheme
+  | EightBallBackgroundTheme;
