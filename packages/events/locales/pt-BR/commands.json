@@ -970,5 +970,16 @@
       "3-2": "Você não consegue esconder, todos sabem que você é um misto. Mas tu não se deixa abalar, e claro que conta para tudo e todos que tu ta apenas fazendo um corte do Ronaldinho Gaúcho.",
       "3-3": "O fim dos fins. Você é grato por ter tido essa calvice. Por mais que não confiasse no início, e que tinha medo do que os outros pensariam, você venceu, e chegou até o fim. Parabéns campeão!"
     }
+  },
+  "poker": {
+    "not-enough-players": "É preciso de no mínimo 2 pessoas para jogar poker!",
+    "enter-match": "Entrar na Partida",
+    "cancel-match": "Cancelar Partida",
+    "start-match": "Iniciar Partida",
+    "accept-embed": {
+      "title": "Preparação para Partida de Poker",
+      "description": "Convidados a participar: {{invites}}\n\n Escolha se você deseja entrar na mesa nos botões abaixo.",
+      "field-title": "Usuários na Mesa ({{users}}/{{maxUsers}})"  
+    }
   }
 }

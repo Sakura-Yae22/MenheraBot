@@ -1,0 +1,3 @@
+const MAX_PLAYERS_PER_TABLE = 8;
+
+export { MAX_PLAYERS_PER_TABLE };
