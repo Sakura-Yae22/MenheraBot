@@ -12,12 +12,12 @@ import { createInitialMatchEmbed } from '../../modules/poker/commandUtils';
 import { MAX_PLAYERS_PER_TABLE } from '../../modules/poker';
 import { getUserAvatar, mentionUser } from '../../utils/discord/userUtils';
 import ComponentInteractionContext from '../../structures/command/ComponentInteractionContext';
-import { logger } from '../../utils/logger';
-import { removeNonNumericCharacters } from '../../utils/miscUtils';
+import { negate, removeNonNumericCharacters } from '../../utils/miscUtils';
 import pokerRepository from '../../database/repositories/pokerRepository';
+import userRepository from '../../database/repositories/userRepository';
 
 const startMatchListener = async (ctx: ComponentInteractionContext): Promise<void> => {
-  const [selectedButton, matchPrivacy] = ctx.sentData;
+  const [selectedButton, matchPrivacy, matchStack] = ctx.sentData;
 
   const cancelGame = async () => {
     ctx.makeMessage({
@@ -84,6 +84,7 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
           oldGameData.embedColor,
           matchPrivacy === 'open' ? MAX_PLAYERS_PER_TABLE : invitedUsers.length,
           getUserAvatar(ctx.commandAuthor, { enableGif: true }),
+          matchStack,
         ),
       ],
     });
@@ -145,13 +146,65 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
           oldGameData.embedColor,
           matchPrivacy === 'open' ? MAX_PLAYERS_PER_TABLE : allowedIds.length,
           getUserAvatar(ctx.commandAuthor, { enableGif: true }),
+          matchStack,
         ),
       ],
     });
     return;
   }
 
-  logger.debug('sexo');
+  const usersIn = (ctx.interaction.message?.embeds?.[0].fields?.[0].value ?? '')
+    .split('\n')
+    .map((a) => removeNonNumericCharacters(a));
+
+  if (usersIn.length < 2)
+    return ctx.respondInteraction({
+      flags: MessageFlags.EPHEMERAL,
+      content: ctx.prettyResponse('error', 'commands:poker.not-enough-players'),
+    });
+
+  const gameData = await pokerRepository.getPokerMatchState(
+    ctx.interaction.message?.interaction?.id ?? '',
+  );
+
+  if (!gameData)
+    return ctx.makeMessage({
+      components: [],
+      embeds: [],
+      content: ctx.prettyResponse('error', 'commands:poker.lost-game-data'),
+    });
+
+  const canAllUsersPlay = await Promise.all(
+    gameData.inGamePlayers.map((a) => pokerRepository.isUserAlreadyInMatch(a)),
+  );
+
+  const unableToStart = async (reason: string) => {
+    ctx.makeMessage({
+      embeds: [],
+      components: [],
+      content: ctx.prettyResponse('error', 'commands:poker.unable-to-start', {
+        reason: ctx.locale(`commands:poker.unable-to-start-reasons.${reason as 'user-in-match'}`),
+      }),
+    });
+
+    await pokerRepository.deletePokerMatch(ctx.interaction.message?.interaction?.id ?? '');
+  };
+
+  if (canAllUsersPlay.includes(true)) return unableToStart('user-in-match');
+
+  const allUserData = await Promise.all(
+    gameData.inGamePlayers.map((a) => userRepository.ensureFindUser(a)),
+  );
+
+  if (allUserData.some((a) => a.estrelinhas < Number(matchStack)))
+    return unableToStart('user-poor');
+
+  await pokerRepository.addUsersInMatch(gameData.inGamePlayers);
+  await userRepository.multiUpdateUsers(gameData.inGamePlayers, {
+    $inc: { estrelinhas: negate(Number(matchStack)) },
+  });
+
+  // Start the poker context system uwu omaga tri legal bacana bah show
 };
 
 const PokerCommand = createCommand({
@@ -296,13 +349,13 @@ const PokerCommand = createCommand({
     const enterButton = createButton({
       label: ctx.locale('commands:poker.enter-match'),
       style: ButtonStyles.Success,
-      customId: createCustomId(0, 'N', ctx.commandId, 'ENTER', matchPrivacy),
+      customId: createCustomId(0, 'N', ctx.commandId, 'ENTER', matchPrivacy, matchStack),
     });
 
     const leaveButton = createButton({
       label: ctx.locale('commands:poker.leave-match'),
       style: ButtonStyles.Secondary,
-      customId: createCustomId(0, 'N', ctx.commandId, 'LEAVE', matchPrivacy),
+      customId: createCustomId(0, 'N', ctx.commandId, 'LEAVE', matchPrivacy, matchStack),
     });
 
     const cancelButton = createButton({
@@ -318,6 +371,7 @@ const PokerCommand = createCommand({
       ctx.authorData.selectedColor,
       matchPrivacy === 'open' ? MAX_PLAYERS_PER_TABLE : invitedUsers.length,
       getUserAvatar(ctx.author, { enableGif: true }),
+      matchStack,
     );
 
     ctx.makeMessage({

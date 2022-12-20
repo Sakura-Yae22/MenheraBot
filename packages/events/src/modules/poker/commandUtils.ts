@@ -11,6 +11,7 @@ const createInitialMatchEmbed = (
   embedColor: string,
   maxPlayers: number,
   authorAvatar: string,
+  stack: number | string,
 ): Embed => {
   return createEmbed({
     color: hexStringToNumber(embedColor),
@@ -20,6 +21,7 @@ const createInitialMatchEmbed = (
     title: ctx.locale('commands:poker.accept-embed.title'),
     description: ctx.locale('commands:poker.accept-embed.description', {
       invites: invitedPlayers.map((a) => mentionUser(a)).join(', '),
+      stack,
     }),
     fields: [
       {

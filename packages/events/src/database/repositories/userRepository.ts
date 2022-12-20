@@ -107,21 +107,7 @@ const multiUpdateUsers = async (
     .updateMany({ id: { $in: userIds } }, { ...query, lastCommandAt: Date.now() })
     .catch(debugError);
 
-  userIds.forEach(async (id) => {
-    const fromRedis = await RedisClient.get(`user:${id}`).catch(debugError);
-
-    if (fromRedis) {
-      const data = JSON.parse(fromRedis);
-
-      await RedisClient.setex(
-        `user:${id}`,
-        3600,
-        JSON.stringify(
-          parseMongoUserToRedisUser({ ...data, ...query, lastCommandAt: Date.now(), id }),
-        ),
-      ).catch(debugError);
-    }
-  });
+  userIds.forEach((id) => invalidateUserCache(id));
 };
 
 const ensureFindUser = async (userId: UserIdType): Promise<DatabaseUserSchema> => {

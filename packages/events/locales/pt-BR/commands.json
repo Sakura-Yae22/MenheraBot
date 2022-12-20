@@ -979,12 +979,17 @@
     "leave-match": "Sair da Partida",
     "accept-embed": {
       "title": "Preparação para Partida de Poker",
-      "description": "Convidados a participar: {{invites}}\n\n Escolha se você deseja entrar na mesa nos botões abaixo.",
+      "description": "**Esta partida vale {{stack}}** :star:\nConvidados a participar: {{invites}}\n\n Escolha se você deseja entrar na mesa nos botões abaixo.",
       "field-title": "Usuários na Mesa ({{users}}/{{maxUsers}})"  
     },
     "match-cancelled": "A partida de poker foi cancelada por {{user}}!",
     "already-in-match": "Você já está em uma partida de Poker! Saia daquela para entrar em outra.",
     "not-in-match": "Você não está participando desta partida!",
+    "unable-to-start": "Não foi possível iniciar essa partida! {{reason}}",
+    "unable-to-start-reasons": {
+      "user-poor": "Alguém não possui o tanto de estrelinhas para entrar na partida",
+      "user-in-match": "Alguém que estava dentro do lobby acabou entrando em outra mesa de poker!"
+    },
     "lost-game-data": "Essa não... eu acabei me esquecendo que vocês queriam jogar poker... Caso ainda queira jogar, use o comando novamente"
   }
 }
