@@ -19,7 +19,7 @@ import pokerRepository from '../../database/repositories/pokerRepository';
 const startMatchListener = async (ctx: ComponentInteractionContext): Promise<void> => {
   const [selectedButton, matchPrivacy] = ctx.sentData;
 
-  if (selectedButton === 'CANCEL') {
+  const cancelGame = async () => {
     ctx.makeMessage({
       components: [],
       content: ctx.prettyResponse('sorry', 'commands:poker.match-cancelled', {
@@ -28,12 +28,65 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
       embeds: [],
     });
 
-    const usersIn = (ctx.interaction.message?.embeds?.[0].fields?.[0]?.value ?? '')
+    await pokerRepository.deletePokerMatch(ctx.interaction.message?.interaction?.id ?? '');
+  };
+
+  if (selectedButton === 'CANCEL') {
+    cancelGame();
+    return;
+  }
+
+  if (selectedButton === 'LEAVE') {
+    const inGamePlayers = (ctx.interaction.message?.embeds?.[0].fields?.[0].value ?? '')
       .split('\n')
       .map((a) => removeNonNumericCharacters(a));
 
-    await pokerRepository.deletePokerMatch(ctx.interaction.message?.interaction?.id ?? '');
-    await pokerRepository.removeUsersInMatch(usersIn);
+    if (!inGamePlayers.includes(`${ctx.user.id}`))
+      return ctx.respondInteraction({
+        flags: MessageFlags.EPHEMERAL,
+        content: ctx.prettyResponse('error', 'commands:poker.not-in-match'),
+      });
+
+    if (ctx.user.id === ctx.commandAuthor.id) return cancelGame();
+
+    const oldGameData = await pokerRepository.getPokerMatchState(
+      ctx.interaction.message?.interaction?.id ?? '',
+    );
+
+    if (!oldGameData) {
+      return ctx.makeMessage({
+        components: [],
+        embeds: [],
+        content: ctx.prettyResponse('error', 'commands:poker.lost-game-data'),
+      });
+    }
+
+    const userIdIndex = oldGameData.inGamePlayers.indexOf(`${ctx.user.id}`);
+    oldGameData.inGamePlayers.splice(userIdIndex, 1);
+
+    await pokerRepository.setPokerMatchState(ctx.interaction.message?.interaction?.id ?? '', {
+      gameStared: false,
+      masterId: oldGameData.masterId,
+      inGamePlayers: oldGameData.inGamePlayers,
+      embedColor: oldGameData.embedColor,
+    });
+
+    const invitedUsers = (ctx.interaction.message?.content ?? '')
+      .split(' ')
+      .map((a) => removeNonNumericCharacters(a));
+
+    ctx.makeMessage({
+      embeds: [
+        createInitialMatchEmbed(
+          ctx,
+          oldGameData.inGamePlayers,
+          invitedUsers,
+          oldGameData.embedColor,
+          matchPrivacy === 'open' ? MAX_PLAYERS_PER_TABLE : invitedUsers.length,
+          getUserAvatar(ctx.commandAuthor, { enableGif: true }),
+        ),
+      ],
+    });
     return;
   }
 
@@ -62,31 +115,40 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
       });
     }
 
+    if (oldGameData.inGamePlayers.includes(`${ctx.user.id}`))
+      return ctx.respondInteraction({
+        flags: MessageFlags.EPHEMERAL,
+        content: ctx.prettyResponse('error', 'commands:poker.already-in-match'),
+      });
+
     if (await pokerRepository.isUserAlreadyInMatch(ctx.user.id))
       return ctx.respondInteraction({
         flags: MessageFlags.EPHEMERAL,
         content: ctx.prettyResponse('error', 'commands:poker.already-in-match'),
       });
 
+    const inGamePlayers = oldGameData.inGamePlayers.concat(`${ctx.user.id}`);
+
     await pokerRepository.setPokerMatchState(ctx.interaction.message?.interaction?.id ?? '', {
       gameStared: false,
       masterId: oldGameData.masterId,
-      inGamePlayers: oldGameData.inGamePlayers.concat(`${ctx.user.id}`),
+      inGamePlayers,
+      embedColor: oldGameData.embedColor,
     });
-    /* 
-    if (!oldGameData)
-      ctx.makeMessage({
-        embeds: [
-          createInitialMatchEmbed(
-            ctx,
-            [ctx.commandAuthor.id, ctx.user.id],
-            allowedIds,
-            ,
-            8,
-            'https://cdn.menherabot.xyz/images/cry/5.gif',
-          ),
-        ],
-      }); */
+
+    ctx.makeMessage({
+      embeds: [
+        createInitialMatchEmbed(
+          ctx,
+          inGamePlayers,
+          allowedIds,
+          oldGameData.embedColor,
+          matchPrivacy === 'open' ? MAX_PLAYERS_PER_TABLE : allowedIds.length,
+          getUserAvatar(ctx.commandAuthor, { enableGif: true }),
+        ),
+      ],
+    });
+    return;
   }
 
   logger.debug('sexo');
@@ -269,6 +331,7 @@ const PokerCommand = createCommand({
       gameStared: false,
       inGamePlayers: [`${ctx.author.id}`],
       masterId: `${ctx.author.id}`,
+      embedColor: ctx.authorData.selectedColor,
     });
 
     finishCommand();

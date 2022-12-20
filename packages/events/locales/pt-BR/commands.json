@@ -984,6 +984,7 @@
     },
     "match-cancelled": "A partida de poker foi cancelada por {{user}}!",
     "already-in-match": "Você já está em uma partida de Poker! Saia daquela para entrar em outra.",
+    "not-in-match": "Você não está participando desta partida!",
     "lost-game-data": "Essa não... eu acabei me esquecendo que vocês queriam jogar poker... Caso ainda queira jogar, use o comando novamente"
   }
 }
