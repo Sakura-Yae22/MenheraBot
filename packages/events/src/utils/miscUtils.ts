@@ -6,6 +6,8 @@ const randomFromArray = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.l
 // eslint-disable-next-line no-control-regex
 const toWritableUtf = (str: string): string => str.replace(/[^\x00-\xFF]/g, '');
 
+const removeNonNumericCharacters = (str: string): string => str.replace(/\D/g, '');
+
 const millisToSeconds = (milli: number): number => Math.floor(milli / 1000);
 
 const negate = (value: number): number => value * -1;
@@ -25,6 +27,7 @@ export {
   capitalize,
   randomFromArray,
   toWritableUtf,
+  removeNonNumericCharacters,
   millisToSeconds,
   negate,
   getMillisecondsToTheEndOfDay,

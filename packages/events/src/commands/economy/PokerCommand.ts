@@ -1,14 +1,98 @@
 import { User } from 'discordeno/transformers';
-import { ApplicationCommandOptionTypes, ButtonStyles } from 'discordeno/types';
+import {
+  AllowedMentionsTypes,
+  ApplicationCommandOptionTypes,
+  ButtonStyles,
+} from 'discordeno/types';
 
 import { MessageFlags } from '../../utils/discord/messageUtils';
 import { createCommand } from '../../structures/command/createCommand';
 import { createActionRow, createButton, createCustomId } from '../../utils/discord/componentUtils';
 import { createInitialMatchEmbed } from '../../modules/poker/commandUtils';
 import { MAX_PLAYERS_PER_TABLE } from '../../modules/poker';
-import { getUserAvatar } from '../../utils/discord/userUtils';
+import { getUserAvatar, mentionUser } from '../../utils/discord/userUtils';
+import ComponentInteractionContext from '../../structures/command/ComponentInteractionContext';
+import { logger } from '../../utils/logger';
+import { removeNonNumericCharacters } from '../../utils/miscUtils';
+import pokerRepository from '../../database/repositories/pokerRepository';
 
-const CoinflipCommand = createCommand({
+const startMatchListener = async (ctx: ComponentInteractionContext): Promise<void> => {
+  const [selectedButton, matchPrivacy] = ctx.sentData;
+
+  if (selectedButton === 'CANCEL') {
+    ctx.makeMessage({
+      components: [],
+      content: ctx.prettyResponse('sorry', 'commands:poker.match-cancelled', {
+        user: mentionUser(ctx.user.id),
+      }),
+      embeds: [],
+    });
+
+    const usersIn = (ctx.interaction.message?.embeds?.[0].fields?.[0]?.value ?? '')
+      .split('\n')
+      .map((a) => removeNonNumericCharacters(a));
+
+    await pokerRepository.deletePokerMatch(ctx.interaction.message?.interaction?.id ?? '');
+    await pokerRepository.removeUsersInMatch(usersIn);
+    return;
+  }
+
+  if (selectedButton === 'ENTER') {
+    const allowedIds = (ctx.interaction.message?.content ?? '')
+      .split(' ')
+      .map((a) => removeNonNumericCharacters(a));
+
+    if (matchPrivacy === 'private' && !allowedIds.includes(`${ctx.user.id}`))
+      return ctx.respondInteraction({
+        flags: MessageFlags.EPHEMERAL,
+        content: ctx.prettyResponse('error', 'permissions:NOT_INTERACTION_OWNER', {
+          owner: allowedIds.map((a) => mentionUser(a)).join(', '),
+        }),
+      });
+
+    const oldGameData = await pokerRepository.getPokerMatchState(
+      ctx.interaction.message?.interaction?.id ?? '',
+    );
+
+    if (!oldGameData) {
+      return ctx.makeMessage({
+        components: [],
+        embeds: [],
+        content: ctx.prettyResponse('error', 'commands:poker.lost-game-data'),
+      });
+    }
+
+    if (await pokerRepository.isUserAlreadyInMatch(ctx.user.id))
+      return ctx.respondInteraction({
+        flags: MessageFlags.EPHEMERAL,
+        content: ctx.prettyResponse('error', 'commands:poker.already-in-match'),
+      });
+
+    await pokerRepository.setPokerMatchState(ctx.interaction.message?.interaction?.id ?? '', {
+      gameStared: false,
+      masterId: oldGameData.masterId,
+      inGamePlayers: oldGameData.inGamePlayers.concat(`${ctx.user.id}`),
+    });
+    /* 
+    if (!oldGameData)
+      ctx.makeMessage({
+        embeds: [
+          createInitialMatchEmbed(
+            ctx,
+            [ctx.commandAuthor.id, ctx.user.id],
+            allowedIds,
+            ,
+            8,
+            'https://cdn.menherabot.xyz/images/cry/5.gif',
+          ),
+        ],
+      }); */
+  }
+
+  logger.debug('sexo');
+};
+
+const PokerCommand = createCommand({
   path: '',
   name: 'poker',
   description: '「🃏」・Inicia uma partida de poker',
@@ -105,6 +189,7 @@ const CoinflipCommand = createCommand({
     },
   ],
   category: 'economy',
+  commandRelatedExecutions: [startMatchListener],
   authorDataFields: ['estrelinhas'],
   execute: async (ctx, finishCommand) => {
     const invitedUsers = (
@@ -122,6 +207,7 @@ const CoinflipCommand = createCommand({
     ).concat(ctx.author);
 
     const matchPrivacy = ctx.getOption<string>('partida', false, true);
+    const matchStack = ctx.getOption<number>('pilha', false, true);
 
     if (invitedUsers.length < 2 && matchPrivacy === 'private')
       return finishCommand(
@@ -131,16 +217,30 @@ const CoinflipCommand = createCommand({
         }),
       );
 
+    if (await pokerRepository.isUserAlreadyInMatch(ctx.author.id))
+      return finishCommand(
+        ctx.makeMessage({
+          flags: MessageFlags.EPHEMERAL,
+          content: ctx.prettyResponse('error', 'commands:poker.already-in-match'),
+        }),
+      );
+
     const startButton = createButton({
       label: ctx.locale('commands:poker.start-match'),
       style: ButtonStyles.Primary,
-      customId: createCustomId(0, ctx.author.id, ctx.commandId, 'START', matchPrivacy),
+      customId: createCustomId(0, ctx.author.id, ctx.commandId, 'START', matchPrivacy, matchStack),
     });
 
     const enterButton = createButton({
       label: ctx.locale('commands:poker.enter-match'),
       style: ButtonStyles.Success,
       customId: createCustomId(0, 'N', ctx.commandId, 'ENTER', matchPrivacy),
+    });
+
+    const leaveButton = createButton({
+      label: ctx.locale('commands:poker.leave-match'),
+      style: ButtonStyles.Secondary,
+      customId: createCustomId(0, 'N', ctx.commandId, 'LEAVE', matchPrivacy),
     });
 
     const cancelButton = createButton({
@@ -160,11 +260,19 @@ const CoinflipCommand = createCommand({
 
     ctx.makeMessage({
       embeds: [embed],
-      components: [createActionRow([startButton, enterButton, cancelButton])],
+      content: invitedUsers.map((a) => mentionUser(a.id)).join(' '),
+      allowedMentions: { parse: [AllowedMentionsTypes.UserMentions] },
+      components: [createActionRow([startButton, enterButton, leaveButton, cancelButton])],
+    });
+
+    await pokerRepository.setPokerMatchState(ctx.interaction.id, {
+      gameStared: false,
+      inGamePlayers: [`${ctx.author.id}`],
+      masterId: `${ctx.author.id}`,
     });
 
     finishCommand();
   },
 });
 
-export default CoinflipCommand;
+export default PokerCommand;

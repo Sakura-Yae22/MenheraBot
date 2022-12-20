@@ -976,10 +976,14 @@
     "enter-match": "Entrar na Partida",
     "cancel-match": "Cancelar Partida",
     "start-match": "Iniciar Partida",
+    "leave-match": "Sair da Partida",
     "accept-embed": {
       "title": "Preparação para Partida de Poker",
       "description": "Convidados a participar: {{invites}}\n\n Escolha se você deseja entrar na mesa nos botões abaixo.",
       "field-title": "Usuários na Mesa ({{users}}/{{maxUsers}})"  
-    }
+    },
+    "match-cancelled": "A partida de poker foi cancelada por {{user}}!",
+    "already-in-match": "Você já está em uma partida de Poker! Saia daquela para entrar em outra.",
+    "lost-game-data": "Essa não... eu acabei me esquecendo que vocês queriam jogar poker... Caso ainda queira jogar, use o comando novamente"
   }
 }
