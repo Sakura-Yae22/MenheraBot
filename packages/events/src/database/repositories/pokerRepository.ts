@@ -9,7 +9,9 @@ const setPokerMatchState = async (matchId: BigString, matchData: PokerMatch): Pr
   await RedisClient.setex(`poker:${matchId}`, 3600, JSON.stringify(matchData));
 };
 
-const getPokerMatchState = async (matchId: BigString): Promise<PokerMatch | null> => {
+const getPokerMatchState = async <MatchStarted extends boolean>(
+  matchId: BigString,
+): Promise<PokerMatch<MatchStarted> | null> => {
   const fromRedis = await RedisClient.get(`poker:${matchId}`);
 
   if (fromRedis) return JSON.parse(fromRedis);

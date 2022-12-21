@@ -15,6 +15,7 @@ import ComponentInteractionContext from '../../structures/command/ComponentInter
 import { negate, removeNonNumericCharacters } from '../../utils/miscUtils';
 import pokerRepository from '../../database/repositories/pokerRepository';
 import userRepository from '../../database/repositories/userRepository';
+import { startPokerMatch } from '../../modules/poker/matchManager';
 
 const startMatchListener = async (ctx: ComponentInteractionContext): Promise<void> => {
   const [selectedButton, matchPrivacy, matchStack] = ctx.sentData;
@@ -28,7 +29,7 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
       embeds: [],
     });
 
-    await pokerRepository.deletePokerMatch(ctx.interaction.message?.interaction?.id ?? '');
+    await pokerRepository.deletePokerMatch(ctx.commandAuthor.id);
   };
 
   if (selectedButton === 'CANCEL') {
@@ -49,9 +50,7 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
 
     if (ctx.user.id === ctx.commandAuthor.id) return cancelGame();
 
-    const oldGameData = await pokerRepository.getPokerMatchState(
-      ctx.interaction.message?.interaction?.id ?? '',
-    );
+    const oldGameData = await pokerRepository.getPokerMatchState(ctx.commandAuthor.id);
 
     if (!oldGameData) {
       return ctx.makeMessage({
@@ -64,7 +63,7 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
     const userIdIndex = oldGameData.inGamePlayers.indexOf(`${ctx.user.id}`);
     oldGameData.inGamePlayers.splice(userIdIndex, 1);
 
-    await pokerRepository.setPokerMatchState(ctx.interaction.message?.interaction?.id ?? '', {
+    await pokerRepository.setPokerMatchState(ctx.commandAuthor.id, {
       gameStared: false,
       masterId: oldGameData.masterId,
       inGamePlayers: oldGameData.inGamePlayers,
@@ -104,9 +103,7 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
         }),
       });
 
-    const oldGameData = await pokerRepository.getPokerMatchState(
-      ctx.interaction.message?.interaction?.id ?? '',
-    );
+    const oldGameData = await pokerRepository.getPokerMatchState(ctx.commandAuthor.id);
 
     if (!oldGameData) {
       return ctx.makeMessage({
@@ -130,7 +127,7 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
 
     const inGamePlayers = oldGameData.inGamePlayers.concat(`${ctx.user.id}`);
 
-    await pokerRepository.setPokerMatchState(ctx.interaction.message?.interaction?.id ?? '', {
+    await pokerRepository.setPokerMatchState(ctx.commandAuthor.id, {
       gameStared: false,
       masterId: oldGameData.masterId,
       inGamePlayers,
@@ -163,9 +160,7 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
       content: ctx.prettyResponse('error', 'commands:poker.not-enough-players'),
     });
 
-  const gameData = await pokerRepository.getPokerMatchState(
-    ctx.interaction.message?.interaction?.id ?? '',
-  );
+  const gameData = await pokerRepository.getPokerMatchState(ctx.commandAuthor.id);
 
   if (!gameData)
     return ctx.makeMessage({
@@ -187,7 +182,7 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
       }),
     });
 
-    await pokerRepository.deletePokerMatch(ctx.interaction.message?.interaction?.id ?? '');
+    await pokerRepository.deletePokerMatch(ctx.commandAuthor.id);
   };
 
   if (canAllUsersPlay.includes(true)) return unableToStart('user-in-match');
@@ -204,6 +199,7 @@ const startMatchListener = async (ctx: ComponentInteractionContext): Promise<voi
     $inc: { estrelinhas: negate(Number(matchStack)) },
   });
 
+  startPokerMatch(ctx);
   // Start the poker context system uwu omaga tri legal bacana bah show
 };
 
@@ -381,7 +377,7 @@ const PokerCommand = createCommand({
       components: [createActionRow([startButton, enterButton, leaveButton, cancelButton])],
     });
 
-    await pokerRepository.setPokerMatchState(ctx.interaction.id, {
+    await pokerRepository.setPokerMatchState(ctx.author.id, {
       gameStared: false,
       inGamePlayers: [`${ctx.author.id}`],
       masterId: `${ctx.author.id}`,

@@ -32,6 +32,8 @@ export enum VanGoghEndpoints {
   Gado = 'gado',
   Macetava = 'macetava',
   Blackjack = 'blackjack',
+  Poker = 'poker',
+  PokerHand = 'poker?player=true',
   BETA = 'beta',
 }
 

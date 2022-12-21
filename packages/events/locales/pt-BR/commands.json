@@ -990,6 +990,10 @@
       "user-poor": "Alguém não possui o tanto de estrelinhas para entrar na partida",
       "user-in-match": "Alguém que estava dentro do lobby acabou entrando em outra mesa de poker!"
     },
-    "lost-game-data": "Essa não... eu acabei me esquecendo que vocês queriam jogar poker... Caso ainda queira jogar, use o comando novamente"
+    "lost-game-data": "Essa não... eu acabei me esquecendo que vocês queriam jogar poker... Caso ainda queira jogar, use o comando novamente",
+    "ingame": {
+      "main-embed-title": "Mesa de Poker",
+      "main-embed-description": "**Rodada Atual**: {{action}}\n**Dealer**: {{dealer}}\n**Small Blind**: {{smallBlind}}\n**Big Blind**: {{bigBlind}}\n\n**Jogando Agora**: {{user}}\n**Pot: {{pot}} :star:**\n**Na Mesa**: {{cards}}"
+    }
   }
 }
