@@ -49,6 +49,10 @@ export default class {
     return this.interaction.data?.id ?? 0n;
   }
 
+  get commandAuthor(): User {
+    return this.interaction.user;
+  }
+
   get channelId(): bigint {
     return this.interaction.channelId ?? 0n;
   }

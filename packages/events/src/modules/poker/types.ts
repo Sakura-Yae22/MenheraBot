@@ -16,7 +16,7 @@ export type PlayerData = {
 export type TableData = {
   cardsPile: number[];
   cardsOpen: number[];
-  dealerId: string;
+  dealerIndex: number;
   pot: number;
 };
 
@@ -32,6 +32,7 @@ interface InGamePokerMatch {
   gameStared: true;
   embedColor: string;
   inGamePlayers: string[];
+  quittedPlayers: string[];
   playersData: Record<string, PlayerData>;
   tableData: TableData;
 }

@@ -4,6 +4,7 @@ import ComponentInteractionContext from '../../structures/command/ComponentInter
 import { InteractionContext } from '../../types/interaction';
 import { createEmbed } from '../../utils/discord/embedUtils';
 import { VanGoghReturnData, vanGoghRequest, VanGoghEndpoints } from '../../utils/vanGoghRequest';
+import { shuffleCards } from '../blackjack';
 import { PlayerData, PokerMatch, VangoghPokerUserData } from './types';
 
 const requestPokerImage = async (
@@ -27,7 +28,8 @@ const createMatchEmbed = async (
     name: user.discordUser.username,
     chips: user.stack,
     fold: user.folded,
-    dealer: matchData.tableData.dealerId === user.discordUser.id,
+    dealer:
+      matchData.tableData.dealerIndex === matchData.inGamePlayers.indexOf(user.discordUser.id),
     theme: user.cardBackgroundTheme,
   });
 
@@ -55,6 +57,28 @@ const startPokerMatch = async (ctx: ComponentInteractionContext): Promise<void> 
 
   if (!image.err)
     ctx.makeMessage({ embeds: [embed], file: { name: 'poker.png', blob: image.data } });
+};
+
+const setupPokerTable = async (ctx: InteractionContext): Promise<void> => {
+  const matchData = await pokerRepository.getPokerMatchState<true>(ctx.commandAuthor.id);
+  if (!matchData) return;
+
+  const shuffledCards = shuffleCards();
+
+  const getNextIndex = (afterDealer: number): number => {
+    const index = matchData.tableData.dealerIndex + afterDealer;
+    const toReturn =
+      index % matchData.inGamePlayers.filter((a) => !matchData.quittedPlayers.includes(a)).length;
+
+    if (toReturn === matchData.tableData.dealerIndex) return getNextIndex(afterDealer + 1);
+
+    return toReturn;
+  };
+
+  const dealerId = matchData.inGamePlayers[getNextIndex(1)];
+  const smallBlindId = matchData.inGamePlayers[getNextIndex(2)];
+  const bigBlindId =
+    matchData.inGamePlayers.length > 2 ? matchData.inGamePlayers[getNextIndex(3)] : null;
 };
 
 export { startPokerMatch };
