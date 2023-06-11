@@ -1,4 +1,5 @@
 import { BigString } from 'discordeno/types';
+import { UserPoints } from '../../modules/roleplay/userStatus';
 import { DatabaseCharacterSchema } from '../../types/database';
 import { characterModel } from '../collections';
 
@@ -10,18 +11,19 @@ const registerCharacter = async (
   userId: BigString,
   raceId: number,
   currentLocation: [number, number],
+  userStatus: UserPoints,
 ): Promise<void> => {
   await characterModel.create({
     id: `${userId}`,
     race: raceId,
     currentLocation,
-    dexterity: 0,
-    intelligence: 0,
-    stamina: 0,
-    strength: 0,
-    life: 100,
-    mana: 100,
-    weary: 100,
+    dexterity: userStatus.dexterity,
+    intelligence: userStatus.intelligence,
+    stamina: userStatus.stamina,
+    strength: userStatus.strength,
+    life: 10000,
+    mana: 10000,
+    weary: 10000,
   });
 };
 

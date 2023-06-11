@@ -1,19 +1,23 @@
-import { ApplicationCommandOptionTypes, ButtonStyles } from 'discordeno/types';
+import { ApplicationCommandOptionTypes, ButtonStyles, TextStyles } from 'discordeno/types';
 
 import { User } from 'discordeno/transformers';
 import roleplayRepository from '../../database/repositories/roleplayRepository';
-import { Races } from '../../modules/roleplay/races';
-import { getAllUserStats } from '../../modules/roleplay/userStatus';
+import { REGISTER_DISTRIBUTE_POINTS } from '../../modules/roleplay/constants';
+import { Races, getRaceById } from '../../modules/roleplay/races';
+import { UserPoints, getAllUserStats } from '../../modules/roleplay/userStatus';
 import ComponentInteractionContext from '../../structures/command/ComponentInteractionContext';
 import { createCommand } from '../../structures/command/createCommand';
-import { SelectMenuInteraction } from '../../types/interaction';
+import { ModalInteraction, SelectMenuInteraction } from '../../types/interaction';
 import {
   createActionRow,
   createButton,
   createCustomId,
   createSelectMenu,
+  createTextInput,
 } from '../../utils/discord/componentUtils';
 import { createEmbed } from '../../utils/discord/embedUtils';
+import { MessageFlags } from '../../utils/discord/messageUtils';
+import { extractFields } from '../../utils/discord/modalUtils';
 import { getDisplayName } from '../../utils/discord/userUtils';
 
 const executeCreateCharaterInteraction = async (
@@ -59,15 +63,122 @@ const executeCreateCharaterInteraction = async (
     return;
   }
 
-  const raceInfo = Races[raceId as '1'];
-
-  await roleplayRepository.registerCharacter(ctx.user.id, Number(raceId), raceInfo.baseLocation);
+  const statusButton = createButton({
+    label: 'Distribuir Pontos',
+    style: ButtonStyles.Primary,
+    customId: createCustomId(1, ctx.user.id, ctx.commandId, 'SHOW_MODAL', raceId),
+  });
 
   ctx.makeMessage({
-    content: `Voce nasceu no mundo de boleham! Você é um ${raceInfo.develName} e nasceu em ${raceInfo.baseLocation}\n\nSeja bem vindo olhe seu personagem usando esse comando dnv`,
+    content: `Você possui ${REGISTER_DISTRIBUTE_POINTS} pontos para distribuir entre seus status. Clique no botão para distribuir os pontos`,
     embeds: [],
-    components: [],
+    components: [createActionRow([statusButton])],
   });
+};
+
+const executeModalInteracion = async (ctx: ComponentInteractionContext): Promise<void> => {
+  const [type, raceId] = ctx.sentData;
+
+  if (type === 'SHOW_MODAL') {
+    const baseRace = getRaceById(Number(raceId));
+
+    const stamina = createTextInput({
+      customId: 'stamina',
+      label: 'Stamina',
+      style: TextStyles.Short,
+      minLength: 1,
+      maxLength: 2,
+      required: true,
+      placeholder: `${baseRace.stamina}`,
+    });
+
+    const dexterity = createTextInput({
+      customId: 'dexterity',
+      label: 'Dexterity',
+      style: TextStyles.Short,
+      minLength: 1,
+      maxLength: 2,
+      required: true,
+      placeholder: `${baseRace.dexterity}`,
+    });
+
+    const intelligence = createTextInput({
+      customId: 'intelligence',
+      label: 'Intelligence',
+      style: TextStyles.Short,
+      minLength: 1,
+      maxLength: 2,
+      required: true,
+      placeholder: `${baseRace.intelligence}`,
+    });
+
+    const strength = createTextInput({
+      customId: 'strength',
+      label: 'Strength',
+      style: TextStyles.Short,
+      minLength: 1,
+      maxLength: 2,
+      required: true,
+      placeholder: `${baseRace.strength}`,
+    });
+
+    ctx.respondWithModal({
+      title: 'Distribuição de Pontos',
+      customId: createCustomId(1, ctx.user.id, ctx.commandId, 'POINTS', raceId),
+      components: [
+        createActionRow([stamina]),
+        createActionRow([dexterity]),
+        createActionRow([intelligence]),
+        createActionRow([strength]),
+      ],
+    });
+    return;
+  }
+
+  const selectedPoints = extractFields(ctx.interaction as ModalInteraction);
+
+  const sum = selectedPoints.reduce((p, c) => p + Number(c.value), 0);
+
+  if (sum !== REGISTER_DISTRIBUTE_POINTS)
+    return ctx.respondInteraction({
+      flags: MessageFlags.EPHEMERAL,
+      content:
+        'Você distribuiu os pontos de forma incorreta! Clique no botão novamente e distribua os pontos corretamente',
+    });
+
+  if (selectedPoints.some((a) => Number(a.value) < 0))
+    return ctx.respondInteraction({
+      flags: MessageFlags.EPHEMERAL,
+      content: 'Você inseriu um número incorreto! Clique no btao novamente e distribua os pontos',
+    });
+
+  if (await roleplayRepository.getCharacter(ctx.user.id)) {
+    return ctx.makeMessage({
+      content: 'Você já tem um personagem em Boleham!',
+      components: [],
+      embeds: [],
+    });
+  }
+
+  ctx.makeMessage({
+    content: 'Você nasceu no mundo de boleham! Use o comando novamente para ver seus status',
+    components: [],
+    embeds: [],
+  });
+
+  const race = getRaceById(Number(raceId));
+
+  const userStatus = selectedPoints.reduce((p, c) => {
+    p[c.customId as 'stamina'] = Number(c.value);
+    return p;
+  }, {} as UserPoints);
+
+  await roleplayRepository.registerCharacter(
+    ctx.user.id,
+    Number(raceId),
+    race.baseLocation,
+    userStatus,
+  );
 };
 
 const CharacterCommand = createCommand({
@@ -88,7 +199,7 @@ const CharacterCommand = createCommand({
   ],
   category: 'roleplay',
   authorDataFields: [],
-  commandRelatedExecutions: [executeCreateCharaterInteraction],
+  commandRelatedExecutions: [executeCreateCharaterInteraction, executeModalInteracion],
   execute: async (ctx, finishCommand) => {
     finishCommand();
     const user = ctx.getOption<User>('usuário', 'users', false) ?? ctx.author;
