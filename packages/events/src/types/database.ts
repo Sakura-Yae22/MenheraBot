@@ -102,3 +102,9 @@ export interface DatabaseCommandSchema {
 }
 
 export type UserIdType = string | bigint;
+
+export interface DatabaseCharacterSchema {
+  readonly id: string;
+  race: number;
+  currentLocation: [number, number];
+}

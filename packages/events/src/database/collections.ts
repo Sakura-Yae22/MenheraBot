@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 import {
+  DatabaseCharacterSchema,
   DatabaseCommandSchema,
   DatabaseCreditsSchema,
   DatabaseGuildSchema,
@@ -98,9 +99,16 @@ const profileImagesSchema = new Schema({
   isPublic: { type: Boolean, default: true },
 });
 
+const characterSchema = new Schema({
+  id: { type: String, unique: true, index: true },
+  race: { type: Number },
+  currentLocation: { type: Array },
+});
+
 export const commandsModel = model<DatabaseCommandSchema>('command', cmdSchema);
 export const guildsModel = model<DatabaseGuildSchema>('guild', guildSchema);
 export const usersModel = model<DatabaseUserSchema>('usersdb', userSchema);
 export const userThemesModel = model<DatabaseUserThemesSchema>('themes', userThemes);
 export const themeCreditsModel = model<DatabaseCreditsSchema>('credits', themeCredits);
 export const profileImagesModel = model<DatabaseProfileImagesSchema>('images', profileImagesSchema);
+export const characterModel = model<DatabaseCharacterSchema>('character', characterSchema);
