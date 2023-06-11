@@ -13,10 +13,10 @@ const Races: IRaces = {
   1: {
     develName: 'Humano',
     baseLocation: [360, 400],
-    strength: 15,
-    intelligence: 15,
-    dexterity: 15,
-    stamina: 15,
+    strength: 14,
+    intelligence: 16,
+    dexterity: 13,
+    stamina: 17,
   },
   2: {
     develName: 'Elfo',
@@ -60,4 +60,8 @@ const Races: IRaces = {
   },
 };
 
-export { Races };
+const getRaceById = (raceId: number): IRaces[number] => {
+  return Races[raceId];
+};
+
+export { Races, getRaceById };

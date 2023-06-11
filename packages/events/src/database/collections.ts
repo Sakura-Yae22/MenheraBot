@@ -107,6 +107,9 @@ const characterSchema = new Schema({
   intelligence: { type: Number },
   dexterity: { type: Number },
   stamina: { type: Number },
+  life: { type: Number },
+  mana: { type: Number },
+  weary: { type: Number },
 });
 
 export const commandsModel = model<DatabaseCommandSchema>('command', cmdSchema);

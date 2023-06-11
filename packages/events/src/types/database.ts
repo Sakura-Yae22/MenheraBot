@@ -107,8 +107,11 @@ export interface DatabaseCharacterSchema {
   readonly id: string;
   race: number;
   currentLocation: [number, number];
-  strength: number;
-  intelligence: number;
-  dexterity: number;
-  stamina: number;
+  strength: number; // points to multiply
+  intelligence: number; // points to multiply
+  dexterity: number; // points to multiply
+  stamina: number; // points to multiply
+  life: number; // percentage
+  mana: number; // percentage
+  weary: number; // percentage
 }

@@ -15,6 +15,13 @@ const registerCharacter = async (
     id: `${userId}`,
     race: raceId,
     currentLocation,
+    dexterity: 0,
+    intelligence: 0,
+    stamina: 0,
+    strength: 0,
+    life: 100,
+    mana: 100,
+    weary: 100,
   });
 };
 

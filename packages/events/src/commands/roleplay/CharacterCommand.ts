@@ -3,6 +3,7 @@ import { ApplicationCommandOptionTypes, ButtonStyles } from 'discordeno/types';
 import { User } from 'discordeno/transformers';
 import roleplayRepository from '../../database/repositories/roleplayRepository';
 import { Races } from '../../modules/roleplay/races';
+import { getAllUserStats } from '../../modules/roleplay/userStatus';
 import ComponentInteractionContext from '../../structures/command/ComponentInteractionContext';
 import { createCommand } from '../../structures/command/createCommand';
 import { SelectMenuInteraction } from '../../types/interaction';
@@ -121,9 +122,15 @@ const CharacterCommand = createCommand({
       return;
     }
 
+    const userStats = getAllUserStats(character);
+
     const embed = createEmbed({
       title: `Personagem de ${getDisplayName(ctx.author)}`,
-      description: `Localização atual: ${character.currentLocation}`,
+      description: `Localização atual: ${character.currentLocation}\nVida: ${userStats.life}/${
+        userStats.maxLife
+      }\nMana: ${userStats.mana}/${userStats.maxMana}\nCansaço: ${userStats.weary}/${
+        userStats.maxWeary
+      }\n\nPontos: ${JSON.stringify(character)}`,
     });
 
     ctx.makeMessage({ embeds: [embed] });
