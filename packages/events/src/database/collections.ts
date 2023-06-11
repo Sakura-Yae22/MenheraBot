@@ -103,6 +103,10 @@ const characterSchema = new Schema({
   id: { type: String, unique: true, index: true },
   race: { type: Number },
   currentLocation: { type: Array },
+  strength: { type: Number },
+  intelligence: { type: Number },
+  dexterity: { type: Number },
+  stamina: { type: Number },
 });
 
 export const commandsModel = model<DatabaseCommandSchema>('command', cmdSchema);

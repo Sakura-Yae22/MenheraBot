@@ -107,4 +107,8 @@ export interface DatabaseCharacterSchema {
   readonly id: string;
   race: number;
   currentLocation: [number, number];
+  strength: number;
+  intelligence: number;
+  dexterity: number;
+  stamina: number;
 }
