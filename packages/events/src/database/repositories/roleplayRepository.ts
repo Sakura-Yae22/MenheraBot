@@ -1,7 +1,9 @@
 import { BigString } from 'discordeno/types';
+import { UserAdventure } from '../../modules/roleplay/aventures/types';
 import { UserPoints } from '../../modules/roleplay/userStatus';
 import { DatabaseCharacterSchema } from '../../types/database';
 import { characterModel } from '../collections';
+import { MainRedisClient } from '../databases';
 
 const getCharacter = async (userId: BigString): Promise<DatabaseCharacterSchema | null> => {
   return characterModel.findOne({ id: `${userId}` });
@@ -27,4 +29,12 @@ const registerCharacter = async (
   });
 };
 
-export default { getCharacter, registerCharacter };
+const getUserAdventure = async (userId: BigString): Promise<null | UserAdventure> => {
+  const fromRedis = await MainRedisClient.get(`adventure:${userId}`);
+
+  if (fromRedis) return JSON.parse(fromRedis);
+
+  return null;
+};
+
+export default { getCharacter, registerCharacter, getUserAdventure };

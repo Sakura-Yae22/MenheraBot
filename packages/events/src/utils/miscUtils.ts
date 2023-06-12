@@ -1,3 +1,6 @@
+import ChatInputInteractionContext from '../structures/command/ChatInputInteractionContext';
+import { MessageFlags } from './discord/messageUtils';
+
 const capitalize = <S extends string>(str: S): Capitalize<S> =>
   (str.charAt(0).toUpperCase() + str.slice(1)) as Capitalize<S>;
 
@@ -28,6 +31,13 @@ const getCustomThemeField = (field: string, customFields: string[]): boolean => 
   return customFields[index + 1] === 'true';
 };
 
+const registerCharacterMessage = async (ctx: ChatInputInteractionContext): Promise<void> => {
+  ctx.makeMessage({
+    flags: MessageFlags.EPHEMERAL,
+    content: 'Você nãoe stá registrado no mundo de bolegham! use /personagem para ser egistrear!',
+  });
+};
+
 export {
   capitalize,
   randomFromArray,
@@ -35,6 +45,7 @@ export {
   getCustomThemeField,
   millisToSeconds,
   millisToHours,
+  registerCharacterMessage,
   negate,
   getMillisecondsToTheEndOfDay,
 };
