@@ -37,4 +37,8 @@ const getUserAdventure = async (userId: BigString): Promise<null | UserAdventure
   return null;
 };
 
-export default { getCharacter, registerCharacter, getUserAdventure };
+const updateUserAdventure = async (userId: BigString, adventure: UserAdventure): Promise<void> => {
+  await MainRedisClient.set(`adventure:${userId}`, JSON.stringify(adventure));
+};
+
+export default { getCharacter, registerCharacter, getUserAdventure, updateUserAdventure };
